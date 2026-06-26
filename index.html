@@ -17,55 +17,86 @@
     </noscript>
     <header class="hero">
       <div class="hero__inner">
-        <p class="eyebrow">JTC向けカタカナ変換装置</p>
-        <h1>部長訳</h1>
-        <p class="lead">カタカナの未来を、部長に通る言葉へ。</p>
-        <div class="hero__actions">
-          <a class="button button--primary" href="#translator">部長訳する</a>
-          <a class="button button--ghost" href="#dictionary">辞書を見る</a>
+        <div class="hero__copy">
+          <p class="eyebrow">昭和稟議変換機 / JTC AI推進担当謹製</p>
+          <h1>部長訳</h1>
+          <p class="lead">カタカナの未来を、部長に通る言葉へ。</p>
+          <p class="hero__note">PoC、AIエージェント、DX。会議室で浮きがちな言葉を、決裁者が判断できる業務文に整えます。</p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="#translator">稟議書に変換</a>
+            <a class="button button--ghost" href="#dictionary">辞書を見る</a>
+          </div>
+        </div>
+        <div class="approval-sheet" aria-label="稟議書の見本">
+          <div class="approval-sheet__top">
+            <span>起案</span><span>課長</span><span>部長</span><span>決裁</span>
+          </div>
+          <div class="approval-sheet__title">AI施策 言い換え稟議</div>
+          <div class="approval-sheet__row"><span>原語</span><strong>AIエージェント</strong></div>
+          <div class="approval-sheet__row"><span>部長訳</span><strong>確認作業を助ける仕組み</strong></div>
+          <div class="approval-sheet__stamp">承認</div>
         </div>
       </div>
     </header>
 
     <main>
+      <section class="route section" aria-label="変換の流れ">
+        <div class="route__item">
+          <span>原語</span>
+          <strong>薄いカタカナ語</strong>
+        </div>
+        <div class="route__item">
+          <span>部長訳</span>
+          <strong>判断できる言葉</strong>
+        </div>
+        <div class="route__item">
+          <span>稟議文</span>
+          <strong>効果と責任範囲</strong>
+        </div>
+        <div class="route__item">
+          <span>想定ツッコミ</span>
+          <strong>先回り回答</strong>
+        </div>
+      </section>
+
       <section id="translator" class="workspace section">
         <div class="panel">
           <div class="section-heading">
-            <p class="eyebrow">入力</p>
+            <p class="eyebrow">起案欄</p>
             <h2>記事や企画メモを貼る</h2>
           </div>
-          <p class="helper-text">外部送信なし。社内っぽい文章でも、このブラウザの中だけで部長向けに整えます。</p>
+          <p class="helper-text">外部送信なし。ブラウザ内だけで、稟議に載せても浮かない言葉へ整えます。</p>
           <textarea id="sourceText" rows="12" placeholder="例: AIエージェントのPoCで、バックログ整理とワークフロー自動化を進めたい。"></textarea>
           <div class="button-row">
-            <button id="sampleButton" class="button button--secondary" type="button">サンプル</button>
-            <button id="translateButton" class="button button--primary" type="button">部長訳する</button>
+            <button id="sampleButton" class="button button--secondary" type="button">記入例</button>
+            <button id="translateButton" class="button button--primary" type="button">決裁ルートへ回す</button>
           </div>
         </div>
 
         <div class="panel panel--result" aria-live="polite">
           <div class="section-heading">
-            <p class="eyebrow">翻訳結果</p>
+            <p class="eyebrow">回議結果</p>
             <h2>社内で通すための3層出力</h2>
           </div>
           <div id="resultEmpty" class="empty-state">文章を貼って「部長訳する」を押すと、ここに結果が出るわ。</div>
           <div id="resultArea" class="result-stack" hidden>
             <article class="result-card">
               <div class="result-card__head">
-                <h3>1. 部長向け1行</h3>
+                <h3><span>一</span> 部長向け1行</h3>
                 <button class="copy-button" type="button" data-copy-target="executiveSummary">コピー</button>
               </div>
               <p id="executiveSummary"></p>
             </article>
             <article class="result-card">
               <div class="result-card__head">
-                <h3>2. 稟議に書ける効果</h3>
+                <h3><span>二</span> 稟議に書ける効果</h3>
                 <button class="copy-button" type="button" data-copy-target="approvalEffect">コピー</button>
               </div>
               <p id="approvalEffect"></p>
             </article>
             <article class="result-card">
               <div class="result-card__head">
-                <h3>3. 想定ツッコミ</h3>
+                <h3><span>三</span> 想定ツッコミ</h3>
                 <button class="copy-button" type="button" data-copy-target="objectionList">コピー</button>
               </div>
               <div id="objectionList" class="objection-list"></div>
@@ -82,7 +113,7 @@
 
       <section id="dictionary" class="section">
         <div class="section-heading">
-          <p class="eyebrow">辞書</p>
+          <p class="eyebrow">用語台帳</p>
           <h2>JTCで通る言い換え一覧</h2>
         </div>
         <div id="categoryFilters" class="filter-row"></div>
@@ -92,7 +123,7 @@
       <section class="section utility-grid">
         <form id="customForm" class="panel">
           <div class="section-heading">
-            <p class="eyebrow">追加</p>
+            <p class="eyebrow">追記欄</p>
             <h2>この場で辞書を足す</h2>
           </div>
           <label>元の語<input id="customTerm" type="text" autocomplete="off"></label>
