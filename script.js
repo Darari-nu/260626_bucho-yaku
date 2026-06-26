@@ -32,6 +32,7 @@ function bindTranslatorEvents() {
   const translateButton = document.querySelector('#translateButton');
   const sampleButton = document.querySelector('#sampleButton');
   const sourceText = document.querySelector('#sourceText');
+  const customForm = document.querySelector('#customForm');
 
   translateButton?.addEventListener('click', () => {
     const result = buildBuchoTranslation(sourceText.value, state.dictionary, state.customDictionary);
@@ -50,6 +51,26 @@ function bindTranslatorEvents() {
       const target = document.querySelector(`#${targetId}`);
       copyToClipboard(target?.textContent || '');
     });
+  });
+
+  customForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const entry = readCustomEntry();
+    const added = addCustomEntry(entry);
+    const message = document.querySelector('#customMessage');
+    if (!added) {
+      if (message) message.textContent = '元の語と部長訳は必須よ。そこだけは稟議より厳しめ。';
+      return;
+    }
+    customForm.reset();
+    if (message) message.textContent = `${entry.term} をこの場の辞書に追加したわ。`;
+    renderCategoryFilters();
+    renderDictionary();
+    if (sourceText.value.trim()) {
+      const result = buildBuchoTranslation(sourceText.value, state.dictionary, state.customDictionary);
+      state.lastResult = result;
+      renderResult(result);
+    }
   });
 }
 
@@ -253,10 +274,11 @@ function renderCategoryFilters() {
   categories.forEach((category) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'filter-button';
+    button.className = category === state.activeCategory ? 'filter-button is-active' : 'filter-button';
     button.textContent = category;
     button.addEventListener('click', () => {
       state.activeCategory = category;
+      renderCategoryFilters();
       renderDictionary();
     });
     container.appendChild(button);
@@ -295,8 +317,41 @@ function renderDictionary() {
     const example = document.createElement('p');
     example.textContent = entry.example;
 
+    const summary = document.createElement('p');
+    summary.className = 'dictionary-card__summary';
+    summary.textContent = entry.summaryPhrase;
+
     terms.append(from, arrow, to);
-    card.append(category, terms, example);
+    card.append(category, terms, summary, example);
     grid.appendChild(card);
   });
+}
+
+function readCustomEntry() {
+  const term = document.querySelector('#customTerm')?.value.trim() || '';
+  const translation = document.querySelector('#customTranslation')?.value.trim() || '';
+  const example = document.querySelector('#customExample')?.value.trim() || '';
+  const category = document.querySelector('#customCategory')?.value || '組織';
+  return { term, translation, example, category };
+}
+
+function addCustomEntry(entry) {
+  if (!entry.term || !entry.translation) return false;
+  state.customDictionary[entry.term] = {
+    translation: entry.translation,
+    訳: entry.translation,
+    summaryPhrase: `${entry.translation}として社内で説明しやすくする話`,
+    effect: `${entry.translation}として整理し、関係者の認識ずれと確認漏れを減らせます。`,
+    category: entry.category,
+    カテゴリ: entry.category,
+    example: entry.example || `${entry.term} → ${entry.translation}`,
+    例文: entry.example || `${entry.term} → ${entry.translation}`,
+    objections: [
+      {
+        question: '現場が使えるのか',
+        answer: '現場の言い方に合わせて追加した辞書語なので、まず関係部署の説明文から試します。'
+      }
+    ]
+  };
+  return true;
 }
