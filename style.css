@@ -30,6 +30,14 @@ body {
   line-height: 1.75;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(192, 57, 43, 0.18);
+}
+
 .noscript {
   padding: 12px 16px;
   background: #fff3c4;
@@ -184,6 +192,7 @@ select {
   font-size: 0.82rem;
   font-weight: 900;
   transform: rotate(5deg);
+  pointer-events: none;
 }
 
 .panel--result::after {
@@ -218,7 +227,7 @@ textarea {
 }
 
 textarea::placeholder {
-  color: #8b99aa;
+  color: #9e8d78;
 }
 
 input,
@@ -262,6 +271,7 @@ textarea:focus {
   cursor: pointer;
   font-weight: 800;
   text-decoration: none;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
 }
 
 .filter-button {
@@ -370,12 +380,18 @@ select:focus-visible {
   border-color: var(--red);
 }
 
+.button:hover,
+.copy-button:hover {
+  transform: translateY(-1px);
+}
+
 .empty-state {
   padding: 22px;
   border: 1px dashed var(--line-strong);
   border-radius: 2px;
   color: var(--muted);
   background: rgba(255, 253, 246, 0.72);
+  font-weight: 700;
 }
 
 .result-stack {
@@ -426,6 +442,10 @@ select:focus-visible {
   background: #fff4dc;
   color: var(--navy);
   border-color: var(--line);
+}
+
+.copy-button:hover {
+  background: #fff0d0;
 }
 
 .copy-status {
@@ -587,6 +607,7 @@ select:focus-visible {
   font-weight: 900;
   transform: rotate(-12deg);
   opacity: 0.88;
+  background: rgba(255, 249, 236, 0.62);
 }
 
 .route {
@@ -622,6 +643,12 @@ select:focus-visible {
   font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
   font-size: 1.1rem;
   line-height: 1.35;
+}
+
+.form-message,
+.copy-status {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 420px) {
