@@ -47,7 +47,7 @@ select {
 
 .hero {
   color: var(--text);
-  min-height: 86vh;
+  min-height: 82vh;
   display: flex;
   align-items: center;
   border-bottom: 2px solid var(--line-strong);
@@ -85,7 +85,7 @@ select {
   display: grid;
   gap: 34px;
   align-items: center;
-  padding: 78px 0 54px;
+  padding: 72px 0 50px;
   position: relative;
   z-index: 1;
 }
@@ -113,6 +113,8 @@ select {
   margin: 0 0 28px;
   color: var(--muted);
   font-weight: 700;
+  border-left: 4px double var(--red);
+  padding-left: 14px;
 }
 
 .helper-text {
@@ -140,6 +142,7 @@ select {
 .workspace {
   display: grid;
   gap: 24px;
+  padding-top: 34px;
 }
 
 .panel,
@@ -169,6 +172,24 @@ select {
   pointer-events: none;
 }
 
+.panel::after {
+  content: "社外秘";
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  color: rgba(192, 57, 43, 0.28);
+  border: 2px solid rgba(192, 57, 43, 0.34);
+  padding: 1px 7px;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 0.82rem;
+  font-weight: 900;
+  transform: rotate(5deg);
+}
+
+.panel--result::after {
+  content: "回議中";
+}
+
 .section-heading h2 {
   margin: 0 0 18px;
   font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
@@ -187,7 +208,7 @@ select {
 }
 
 textarea {
-  min-height: 260px;
+  min-height: 286px;
   padding: 16px;
   resize: vertical;
   background:
@@ -210,8 +231,14 @@ label {
   display: grid;
   gap: 6px;
   margin-bottom: 14px;
-  color: var(--muted);
+  color: var(--text);
   font-weight: 700;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background-color: #fffdf8;
 }
 
 .button-row,
@@ -221,6 +248,10 @@ label {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 14px;
+}
+
+.button-row {
+  justify-content: flex-end;
 }
 
 .button,
@@ -269,6 +300,8 @@ label {
 .dictionary-card__summary {
   color: var(--muted);
   font-size: 0.92rem;
+  margin-top: 0;
+  font-weight: 700;
 }
 
 .form-message {
@@ -347,11 +380,14 @@ select:focus-visible {
 
 .result-stack {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .result-card {
-  padding: 18px;
+  padding: 18px 18px 16px;
+  background:
+    linear-gradient(90deg, rgba(192, 57, 43, 0.08), transparent 42%),
+    var(--card);
 }
 
 .result-card__head {
@@ -365,6 +401,10 @@ select:focus-visible {
 .note h2 {
   margin: 0 0 8px;
   font-size: 1rem;
+}
+
+.result-card p {
+  margin: 8px 0 0;
 }
 
 .result-card h3 span {
@@ -398,12 +438,13 @@ select:focus-visible {
 
 .dictionary-grid {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   margin-top: 18px;
 }
 
 .dictionary-card {
-  padding: 16px;
+  padding: 16px 16px 18px;
+  min-height: 176px;
 }
 
 .dictionary-card__category,
@@ -423,8 +464,9 @@ select:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 12px 0;
+  margin: 14px 0 10px;
   font-weight: 900;
+  flex-wrap: wrap;
 }
 
 .dictionary-card__from {
@@ -462,8 +504,18 @@ select:focus-visible {
   border: 2px solid var(--line-strong);
   box-shadow: var(--shadow);
   padding: 18px;
-  transform: rotate(1deg);
+  transform: rotate(0.8deg);
   position: relative;
+}
+
+.approval-sheet::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  height: 12px;
+  background: repeating-linear-gradient(90deg, rgba(75, 58, 42, 0.22) 0 34px, transparent 34px 42px);
 }
 
 .approval-sheet__top {
@@ -541,13 +593,13 @@ select:focus-visible {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
-  padding-top: 30px;
-  padding-bottom: 22px;
+  padding-top: 26px;
+  padding-bottom: 0;
 }
 
 .route__item {
-  min-height: 92px;
-  padding: 16px;
+  min-height: 82px;
+  padding: 14px 16px;
   border: 1px solid var(--line-strong);
   border-right: 0;
   background: rgba(255, 250, 240, 0.76);
@@ -591,6 +643,23 @@ select:focus-visible {
 
   .approval-sheet {
     transform: none;
+    padding: 14px;
+  }
+
+  .approval-sheet__stamp {
+    width: 62px;
+    height: 62px;
+    right: 24px;
+    top: 36px;
+    font-size: 0.96rem;
+  }
+
+  .approval-sheet__title {
+    font-size: 1.08rem;
+  }
+
+  .approval-sheet__row {
+    grid-template-columns: 74px 1fr;
   }
 
   .result-card__head {
@@ -601,6 +670,11 @@ select:focus-visible {
   .button,
   .button-row .button {
     width: 100%;
+  }
+
+  .panel::after {
+    right: 14px;
+    top: 14px;
   }
 }
 
@@ -626,11 +700,21 @@ select:focus-visible {
   }
 
   .hero__inner {
-    padding-top: 58px;
+    padding-top: 54px;
+    gap: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3.7rem, 22vw, 5.4rem);
+  }
+
+  .lead {
+    font-size: 1.5rem;
   }
 
   .route {
     grid-template-columns: 1fr 1fr;
+    width: min(100% - 20px, 1120px);
   }
 
   .route__item:nth-child(2) {
