@@ -1,18 +1,26 @@
+const CATEGORIES = [
+  'ビジネス横文字',
+  'ITっぽい横文字',
+  '意識高め横文字',
+  'ふわっとした言葉'
+];
+
 const state = {
   dictionary: {},
-  customDictionary: {},
   activeCategory: 'すべて',
+  searchQuery: '',
   lastResult: null
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     state.dictionary = await loadDictionary();
-    bindTranslatorEvents();
+    bindEvents();
+    renderDictionaryCount();
     renderCategoryFilters();
     renderDictionary();
   } catch (error) {
-    showError(error.message);
+    setText('#toolMessage', `${error.message} ローカル確認では簡易サーバー経由で開いてちょうだい。`);
   }
 });
 
@@ -24,262 +32,231 @@ async function loadDictionary(url = './data/dictionary.json') {
   return response.json();
 }
 
-function getAllEntries() {
-  return { ...state.dictionary, ...state.customDictionary };
-}
-
-function bindTranslatorEvents() {
+function bindEvents() {
   const translateButton = document.querySelector('#translateButton');
-  const sampleButton = document.querySelector('#sampleButton');
-  const sourceText = document.querySelector('#sourceText');
-  const customForm = document.querySelector('#customForm');
+  const retryButton = document.querySelector('#retryButton');
+  const clearButton = document.querySelector('#clearButton');
+  const copyButton = document.querySelector('#copyButton');
+  const summaryButton = document.querySelector('#summaryButton');
+  const openDictionaryButton = document.querySelector('#openDictionaryButton');
+  const closeDictionaryButton = document.querySelector('#closeDictionaryButton');
+  const dictionaryDialog = document.querySelector('#dictionaryDialog');
+  const dictionarySearch = document.querySelector('#dictionarySearch');
 
-  translateButton?.addEventListener('click', () => {
-    const result = buildBuchoTranslation(sourceText.value, state.dictionary, state.customDictionary);
-    state.lastResult = result;
-    renderResult(result);
-  });
+  translateButton?.addEventListener('click', translateCurrentText);
+  retryButton?.addEventListener('click', translateCurrentText);
+  clearButton?.addEventListener('click', clearTool);
+  copyButton?.addEventListener('click', copyTranslatedText);
+  summaryButton?.addEventListener('click', renderSummary);
 
-  sampleButton?.addEventListener('click', () => {
-    sourceText.value = 'AIエージェントのPoCで、バックログ整理とワークフロー自動化を進めたい。DXの一環として、KPIを置きながら現場の確認漏れを減らす。';
-    sourceText.focus();
-  });
-
-  document.querySelectorAll('.copy-button').forEach((button) => {
-    button.addEventListener('click', () => {
-      const targetId = button.dataset.copyTarget;
-      const target = document.querySelector(`#${targetId}`);
-      copyToClipboard(target?.textContent || '');
-    });
-  });
-
-  customForm?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const entry = readCustomEntry();
-    const added = addCustomEntry(entry);
-    const message = document.querySelector('#customMessage');
-    if (!added) {
-      if (message) message.textContent = '元の語と部長訳は必須よ。そこだけは稟議より厳しめ。';
+  openDictionaryButton?.addEventListener('click', () => {
+    if (typeof dictionaryDialog?.showModal === 'function') {
+      dictionaryDialog.showModal();
+      dictionarySearch?.focus();
       return;
     }
-    customForm.reset();
-    if (message) message.textContent = `${entry.term} をこの場の辞書に追加したわ。`;
-    renderCategoryFilters();
-    renderDictionary();
-    if (sourceText.value.trim()) {
-      const result = buildBuchoTranslation(sourceText.value, state.dictionary, state.customDictionary);
-      state.lastResult = result;
-      renderResult(result);
+    dictionaryDialog?.setAttribute('open', '');
+  });
+
+  closeDictionaryButton?.addEventListener('click', () => {
+    dictionaryDialog?.close();
+  });
+
+  dictionaryDialog?.addEventListener('click', (event) => {
+    if (event.target === dictionaryDialog) {
+      dictionaryDialog.close();
     }
+  });
+
+  dictionarySearch?.addEventListener('input', (event) => {
+    state.searchQuery = event.target.value.trim().toLowerCase();
+    renderDictionary();
   });
 }
 
-function normalizeTerm(term) {
-  return String(term).trim().toLowerCase();
+function translateCurrentText() {
+  const sourceText = document.querySelector('#sourceText')?.value || '';
+  const result = buildTranslation(sourceText, state.dictionary);
+  state.lastResult = result;
+  renderResult(result);
+}
+
+function buildTranslation(inputText, dictionary) {
+  const originalText = inputText.trim();
+  const matches = findMatches(originalText, dictionary);
+  const translatedText = replaceTerms(originalText, matches);
+
+  return {
+    originalText,
+    translatedText,
+    matches,
+    isEmpty: originalText.length === 0
+  };
+}
+
+function findMatches(inputText, dictionary) {
+  if (!inputText) return [];
+
+  return Object.entries(dictionary)
+    .map(([term, entry]) => ({ term, entry }))
+    .sort((a, b) => b.term.length - a.term.length)
+    .filter(({ term }) => makeTermRegExp(term).test(inputText));
+}
+
+function replaceTerms(inputText, matches) {
+  return matches.reduce((text, match) => {
+    return text.replace(makeTermRegExp(match.term, true), match.entry['訳']);
+  }, inputText);
+}
+
+function makeTermRegExp(term, global = false) {
+  const flags = `${global ? 'g' : ''}${/^[a-z0-9]+$/i.test(term) ? 'i' : ''}`;
+  return new RegExp(escapeRegExp(term), flags);
 }
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function findMatches(inputText, dictionary, customDictionary = {}) {
-  if (!inputText.trim()) return [];
-  const mergedEntries = [
-    ...Object.entries(customDictionary).map(([term, entry]) => ({ term, entry, source: 'custom' })),
-    ...Object.entries(dictionary).map(([term, entry]) => ({ term, entry, source: 'official' }))
-  ];
-  const sortedEntries = mergedEntries.sort((a, b) => b.term.length - a.term.length);
-  const matches = [];
-  const seen = new Set();
-
-  sortedEntries.forEach(({ term, entry, source }) => {
-    const flags = /^[a-z0-9]+$/i.test(term) ? 'i' : '';
-    const pattern = new RegExp(escapeRegExp(term), flags);
-    if (pattern.test(inputText)) {
-      const key = normalizeTerm(term);
-      if (!seen.has(key)) {
-        seen.add(key);
-        matches.push({ term, entry, source });
-      }
-    }
-  });
-
-  return matches;
-}
-
-function translateText(inputText, matches) {
-  return matches
-    .slice()
-    .sort((a, b) => b.term.length - a.term.length)
-    .reduce((text, match) => {
-      const flags = /^[a-z0-9]+$/i.test(match.term) ? 'gi' : 'g';
-      return text.replace(new RegExp(escapeRegExp(match.term), flags), match.entry.translation);
-    }, inputText);
-}
-
-function buildExecutiveSummary(matches) {
-  if (matches.length === 0) {
-    return 'つまり、まだ辞書にない言葉も含めて、部長が判断できる業務上の変化へ言い換える話です。';
-  }
-  const phrases = matches.slice(0, 2).map((match) => match.entry.summaryPhrase);
-  if (phrases.length === 1) {
-    return `つまり、${phrases[0]}です。`;
-  }
-  return `つまり、${phrases[0]}を進めながら、${phrases[1]}です。`;
-}
-
-function buildApprovalEffect(matches) {
-  const priorityWords = ['属人化', '確認漏れ', '一次切り分け', 'お試し導入'];
-  const effects = matches
-    .map((match) => match.entry.effect)
-    .filter(Boolean)
-    .sort((a, b) => priorityScore(b, priorityWords) - priorityScore(a, priorityWords));
-  const selected = [...new Set(effects)].slice(0, 3);
-  if (selected.length === 0) {
-    return '対象業務を小さく区切って確認し、属人化・確認漏れ・手戻りの有無を見ながら導入判断できます。';
-  }
-  return selected.join('');
-}
-
-function priorityScore(text, words) {
-  return words.reduce((score, word, index) => {
-    return text.includes(word) ? score + words.length - index : score;
-  }, 0);
-}
-
-function buildObjectionAnswers(matches) {
-  const commonObjections = [
-    {
-      question: '費用対効果は',
-      answer: 'まず対象業務を絞り、削減時間、確認漏れ件数、手戻り回数を見て継続判断します。'
-    },
-    {
-      question: '現場が使えるのか',
-      answer: 'いきなり全社展開せず、普段の手順に近い範囲から試して、使いにくい点を先に直します。'
-    },
-    {
-      question: '責任所在はどうするのか',
-      answer: '仕組みは確認支援に限定し、承認や最終判断は従来どおり担当者と責任者が持ちます。'
-    },
-    {
-      question: '止められるのか',
-      answer: '試行範囲を限定し、元に戻す手順を用意してから始めます。'
-    }
-  ];
-  const termObjections = matches.flatMap((match) => match.entry.objections || []);
-  return uniqueObjections([...termObjections, ...commonObjections]).slice(0, 3);
-}
-
-function uniqueObjections(objections) {
-  const seen = new Set();
-  return objections.filter((item) => {
-    const key = `${item.question}:${item.answer}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function buildBuchoTranslation(inputText, dictionary, customDictionary = {}) {
-  const trimmedText = inputText.trim();
-  const matches = findMatches(trimmedText, dictionary, customDictionary);
-  const translatedText = trimmedText ? translateText(trimmedText, matches) : '';
-
-  return {
-    translatedText,
-    matchedTerms: matches,
-    executiveSummary: buildExecutiveSummary(matches),
-    approvalEffect: buildApprovalEffect(matches),
-    objections: buildObjectionAnswers(matches),
-    isEmpty: !trimmedText
-  };
-}
-
 function renderResult(result) {
-  const resultArea = document.querySelector('#resultArea');
-  const resultEmpty = document.querySelector('#resultEmpty');
-  if (!resultArea || !resultEmpty) return;
+  const resultSection = document.querySelector('#resultSection');
+  const summaryText = document.querySelector('#summaryText');
+
+  setText('#copyStatus', '');
+  setText('#toolMessage', '');
+  if (summaryText) summaryText.hidden = true;
 
   if (result.isEmpty) {
-    resultArea.hidden = true;
-    resultEmpty.hidden = false;
-    resultEmpty.textContent = '文章を入れてから部長訳してちょうだい。空の稟議はさすがに通らないわ。';
+    if (resultSection) resultSection.hidden = true;
+    setText('#toolMessage', '文章を貼ってから押してちょうだい。空っぽだとほどけないわ。');
     return;
   }
 
-  resultArea.hidden = false;
-  resultEmpty.hidden = true;
+  if (resultSection) resultSection.hidden = false;
+  renderHighlightedText('#originalText', result.originalText, result.matches, 'source');
+  renderHighlightedText('#translatedText', result.translatedText, result.matches, 'translated');
 
-  setText('#executiveSummary', result.executiveSummary);
-  setText('#approvalEffect', result.approvalEffect);
-  setText('#translatedText', result.translatedText || '辞書語は未検出ですが、元の文章はそのまま残しています。');
-  renderObjections(result.objections);
-  renderMatchedTerms(result.matchedTerms);
+  if (result.matches.length === 0) {
+    setText('#toolMessage', '辞書にある横文字は見つからなかったわ。文章はそのまま表示しているわよ。');
+  } else {
+    setText('#toolMessage', `${result.matches.length}語をわかる日本語にしたわ。`);
+  }
 }
 
-function renderObjections(objections) {
-  const container = document.querySelector('#objectionList');
+function renderHighlightedText(selector, text, matches, mode) {
+  const container = document.querySelector(selector);
   if (!container) return;
+
   container.replaceChildren();
-  objections.forEach((item) => {
-    const block = document.createElement('div');
-    block.className = 'objection';
-    const question = document.createElement('p');
-    question.textContent = `Q. ${item.question}`;
-    const answer = document.createElement('p');
-    answer.textContent = `A. ${item.answer}`;
-    block.append(question, answer);
-    container.appendChild(block);
+  if (!text) return;
+
+  const targets = mode === 'source'
+    ? matches.map((match) => ({ term: match.term, label: match.term }))
+    : matches.map((match) => ({ term: match.entry['訳'], label: match.entry['訳'] }));
+
+  appendHighlightedFragments(container, text, targets, mode);
+}
+
+function appendHighlightedFragments(container, text, targets, mode) {
+  const sortedTargets = targets
+    .filter((target) => target.term)
+    .sort((a, b) => b.term.length - a.term.length);
+
+  let cursor = 0;
+  while (cursor < text.length) {
+    const hit = findNextTarget(text, sortedTargets, cursor);
+    if (!hit) {
+      container.appendChild(document.createTextNode(text.slice(cursor)));
+      break;
+    }
+
+    if (hit.index > cursor) {
+      container.appendChild(document.createTextNode(text.slice(cursor, hit.index)));
+    }
+
+    const mark = document.createElement('mark');
+    mark.className = mode === 'source' ? 'highlight-source' : 'highlight-translated';
+    mark.textContent = text.slice(hit.index, hit.index + hit.term.length);
+    container.appendChild(mark);
+    cursor = hit.index + hit.term.length;
+  }
+}
+
+function findNextTarget(text, targets, startIndex) {
+  let nextHit = null;
+
+  targets.forEach((target) => {
+    const lowerText = text.toLowerCase();
+    const lowerTerm = target.term.toLowerCase();
+    const index = lowerText.indexOf(lowerTerm, startIndex);
+    if (index === -1) return;
+    if (!nextHit || index < nextHit.index || (index === nextHit.index && target.term.length > nextHit.term.length)) {
+      nextHit = { index, term: text.slice(index, index + target.term.length) };
+    }
   });
+
+  return nextHit;
 }
 
-function renderMatchedTerms(matches) {
-  const container = document.querySelector('#matchedTerms');
-  if (!container) return;
-  container.replaceChildren();
-  if (matches.length === 0) {
-    const message = document.createElement('p');
-    message.textContent = '辞書登録語はまだ見つかっていません。必要なら下のフォームで追加できます。';
-    container.appendChild(message);
+async function copyTranslatedText() {
+  const text = state.lastResult?.translatedText || '';
+  if (!text.trim()) {
+    setText('#copyStatus', 'コピーする文章がまだないわ。');
     return;
   }
-  matches.forEach((match) => {
-    const chip = document.createElement('span');
-    chip.className = 'term-chip';
-    chip.textContent = `${match.term} → ${match.entry.translation}`;
-    container.appendChild(chip);
-  });
-}
 
-function setText(selector, value) {
-  const element = document.querySelector(selector);
-  if (element) element.textContent = value;
-}
-
-async function copyToClipboard(text) {
-  if (!text.trim()) return;
-  const status = document.querySelector('#copyStatus');
   try {
     await navigator.clipboard.writeText(text);
-    if (status) status.textContent = 'コピーしたわ。会議前の一文に使ってちょうだい。';
+    setText('#copyStatus', 'コピーしたわ。');
   } catch (error) {
-    if (status) status.textContent = 'コピーに失敗しました。ブラウザの権限を確認してください。';
+    setText('#copyStatus', 'コピーに失敗したわ。ブラウザの権限を確認してちょうだい。');
   }
 }
 
-function showError(message) {
-  const resultEmpty = document.querySelector('#resultEmpty');
-  if (resultEmpty) {
-    resultEmpty.textContent = `${message} ローカル確認では簡易サーバー経由で開いてください。`;
+function renderSummary() {
+  const summaryText = document.querySelector('#summaryText');
+  if (!summaryText) return;
+
+  const matches = state.lastResult?.matches || [];
+  if (!state.lastResult || state.lastResult.isEmpty) {
+    summaryText.hidden = false;
+    summaryText.textContent = 'つまり：先に文章を貼るところからお願いね。';
+    return;
   }
+
+  const terms = matches.slice(0, 3).map((match) => match.term);
+  summaryText.hidden = false;
+  summaryText.textContent = terms.length
+    ? `つまり：${terms.join('、')}を、新しい言葉を使わずちゃんと伝わる文章にしました。`
+    : 'つまり：新しい言葉を増やさず、そのまま読める文章でした。';
+}
+
+function clearTool() {
+  const sourceText = document.querySelector('#sourceText');
+  const resultSection = document.querySelector('#resultSection');
+  const summaryText = document.querySelector('#summaryText');
+
+  if (sourceText) {
+    sourceText.value = '';
+    sourceText.focus();
+  }
+  if (resultSection) resultSection.hidden = true;
+  if (summaryText) summaryText.hidden = true;
+  state.lastResult = null;
+  setText('#toolMessage', '');
+  setText('#copyStatus', '');
+}
+
+function renderDictionaryCount() {
+  setText('#dictionaryCount', `登録語数：${Object.keys(state.dictionary).length}語`);
 }
 
 function renderCategoryFilters() {
   const container = document.querySelector('#categoryFilters');
   if (!container) return;
-  const categories = ['すべて', ...new Set(Object.values(getAllEntries()).map((entry) => entry.category))];
+
   container.replaceChildren();
-  categories.forEach((category) => {
+  ['すべて', ...CATEGORIES].forEach((category) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = category === state.activeCategory ? 'filter-button is-active' : 'filter-button';
@@ -296,70 +273,48 @@ function renderCategoryFilters() {
 function renderDictionary() {
   const grid = document.querySelector('#dictionaryGrid');
   if (!grid) return;
-  const entries = Object.entries(getAllEntries()).filter(([, entry]) => {
-    return state.activeCategory === 'すべて' || entry.category === state.activeCategory;
+
+  const entries = Object.entries(state.dictionary).filter(([term, entry]) => {
+    const matchesCategory = state.activeCategory === 'すべて' || entry['カテゴリ'] === state.activeCategory;
+    const haystack = `${term} ${entry['訳']} ${entry['例文']} ${entry['カテゴリ']}`.toLowerCase();
+    const matchesSearch = !state.searchQuery || haystack.includes(state.searchQuery);
+    return matchesCategory && matchesSearch;
   });
+
   grid.replaceChildren();
+  if (entries.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'dictionary-empty';
+    empty.textContent = '該当する言葉は見つからなかったわ。';
+    grid.appendChild(empty);
+    return;
+  }
+
   entries.forEach(([term, entry]) => {
     const card = document.createElement('article');
     card.className = 'dictionary-card';
 
     const category = document.createElement('span');
     category.className = 'dictionary-card__category';
-    category.textContent = entry.category;
+    category.textContent = entry['カテゴリ'];
 
-    const terms = document.createElement('div');
-    terms.className = 'dictionary-card__terms';
+    const title = document.createElement('h3');
+    title.textContent = term;
 
-    const from = document.createElement('span');
-    from.className = 'dictionary-card__from';
-    from.textContent = term;
-
-    const arrow = document.createElement('span');
-    arrow.className = 'dictionary-card__arrow';
-    arrow.textContent = '→';
-
-    const to = document.createElement('span');
-    to.textContent = entry.translation;
+    const translation = document.createElement('p');
+    translation.className = 'dictionary-card__translation';
+    translation.textContent = entry['訳'];
 
     const example = document.createElement('p');
-    example.textContent = entry.example;
+    example.className = 'dictionary-card__example';
+    example.textContent = entry['例文'];
 
-    const summary = document.createElement('p');
-    summary.className = 'dictionary-card__summary';
-    summary.textContent = entry.summaryPhrase;
-
-    terms.append(from, arrow, to);
-    card.append(category, terms, summary, example);
+    card.append(category, title, translation, example);
     grid.appendChild(card);
   });
 }
 
-function readCustomEntry() {
-  const term = document.querySelector('#customTerm')?.value.trim() || '';
-  const translation = document.querySelector('#customTranslation')?.value.trim() || '';
-  const example = document.querySelector('#customExample')?.value.trim() || '';
-  const category = document.querySelector('#customCategory')?.value || '組織';
-  return { term, translation, example, category };
-}
-
-function addCustomEntry(entry) {
-  if (!entry.term || !entry.translation) return false;
-  state.customDictionary[entry.term] = {
-    translation: entry.translation,
-    訳: entry.translation,
-    summaryPhrase: `${entry.translation}として社内で説明しやすくする話`,
-    effect: `${entry.translation}として整理し、関係者の認識ずれと確認漏れを減らせます。`,
-    category: entry.category,
-    カテゴリ: entry.category,
-    example: entry.example || `${entry.term} → ${entry.translation}`,
-    例文: entry.example || `${entry.term} → ${entry.translation}`,
-    objections: [
-      {
-        question: '現場が使えるのか',
-        answer: '現場の言い方に合わせて追加した辞書語なので、まず関係部署の説明文から試します。'
-      }
-    ]
-  };
-  return true;
+function setText(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = value;
 }
