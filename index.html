@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
+    <noscript>
+      <div class="noscript">部長訳はブラウザ内のJavaScriptで動きます。JavaScriptを有効にしてから使ってください。</div>
+    </noscript>
     <header class="hero">
       <div class="hero__inner">
         <p class="eyebrow">JTC向けカタカナ変換装置</p>
@@ -31,6 +34,7 @@
             <p class="eyebrow">入力</p>
             <h2>記事や企画メモを貼る</h2>
           </div>
+          <p class="helper-text">外部送信なし。社内っぽい文章でも、このブラウザの中だけで部長向けに整えます。</p>
           <textarea id="sourceText" rows="12" placeholder="例: AIエージェントのPoCで、バックログ整理とワークフロー自動化を進めたい。"></textarea>
           <div class="button-row">
             <button id="sampleButton" class="button button--secondary" type="button">サンプル</button>
@@ -71,6 +75,7 @@
               <p id="translatedText"></p>
             </article>
             <div id="matchedTerms" class="matched-terms"></div>
+            <p id="copyStatus" class="copy-status" role="status" aria-live="polite"></p>
           </div>
         </div>
       </section>
@@ -109,6 +114,7 @@
           <h2>注記</h2>
           <p>入力文は外部送信せず、ブラウザ内だけで処理します。辞書追加も現在のセッション中だけ反映します。</p>
           <p>darariの製造業JTCでの一次情報をもとにした私的な言い換えです。業務利用は各社の判断に合わせてください。</p>
+          <p>このv1は辞書ベースです。生成AI API、解析タグ、Cookie保存は使っていません。</p>
         </aside>
       </section>
     </main>

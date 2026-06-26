@@ -22,6 +22,14 @@ body {
   line-height: 1.75;
 }
 
+.noscript {
+  padding: 12px 16px;
+  background: #fff3c4;
+  color: var(--navy);
+  font-weight: 800;
+  text-align: center;
+}
+
 button,
 textarea,
 input,
@@ -57,6 +65,12 @@ select {
   margin: 18px 0 28px;
   font-size: clamp(1.35rem, 4vw, 2rem);
   font-weight: 700;
+}
+
+.helper-text {
+  margin: -6px 0 14px;
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .eyebrow {
@@ -115,6 +129,10 @@ textarea {
   min-height: 260px;
   padding: 16px;
   resize: vertical;
+}
+
+textarea::placeholder {
+  color: #8b99aa;
 }
 
 input,
@@ -289,6 +307,14 @@ select:focus-visible {
   color: var(--navy);
 }
 
+.copy-status {
+  min-height: 1.7em;
+  margin: 0;
+  color: var(--red);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .dictionary-grid {
   display: grid;
   gap: 14px;
@@ -335,6 +361,34 @@ select:focus-visible {
 .note {
   background: #eef2f6;
   box-shadow: none;
+}
+
+.note p {
+  margin: 0 0 10px;
+}
+
+@media (max-width: 420px) {
+  .hero__inner,
+  .section {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .panel,
+  .note,
+  .result-card,
+  .dictionary-card {
+    padding: 14px;
+  }
+
+  .result-card__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .button,
+  .button-row .button {
+    width: 100%;
+  }
 }
 
 @media (min-width: 768px) {

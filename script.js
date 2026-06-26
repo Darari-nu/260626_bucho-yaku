@@ -258,12 +258,20 @@ function setText(selector, value) {
 
 async function copyToClipboard(text) {
   if (!text.trim()) return;
-  await navigator.clipboard.writeText(text);
+  const status = document.querySelector('#copyStatus');
+  try {
+    await navigator.clipboard.writeText(text);
+    if (status) status.textContent = 'コピーしたわ。会議前の一文に使ってちょうだい。';
+  } catch (error) {
+    if (status) status.textContent = 'コピーに失敗しました。ブラウザの権限を確認してください。';
+  }
 }
 
 function showError(message) {
   const resultEmpty = document.querySelector('#resultEmpty');
-  if (resultEmpty) resultEmpty.textContent = message;
+  if (resultEmpty) {
+    resultEmpty.textContent = `${message} ローカル確認では簡易サーバー経由で開いてください。`;
+  }
 }
 
 function renderCategoryFilters() {
