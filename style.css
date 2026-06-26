@@ -1,0 +1,287 @@
+:root {
+  --bg: #f6f7f9;
+  --text: #1d2433;
+  --muted: #62748a;
+  --navy: #102a43;
+  --red: #c0392b;
+  --yellow: #f2c94c;
+  --card: #ffffff;
+  --line: #d8dee8;
+  --shadow: 0 16px 36px rgba(16, 42, 67, 0.09);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.75;
+}
+
+button,
+textarea,
+input,
+select {
+  font: inherit;
+}
+
+.hero {
+  background:
+    linear-gradient(135deg, rgba(16, 42, 67, 0.94), rgba(29, 36, 51, 0.86)),
+    linear-gradient(45deg, rgba(242, 201, 76, 0.22), transparent 42%);
+  color: #fff;
+  min-height: 78vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero__inner,
+.section {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: clamp(3rem, 9vw, 5.4rem);
+  line-height: 1.1;
+}
+
+.lead {
+  max-width: 720px;
+  margin: 18px 0 28px;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 700;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--red);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.hero .eyebrow {
+  color: var(--yellow);
+}
+
+.section {
+  padding: 56px 0;
+}
+
+.workspace {
+  display: grid;
+  gap: 24px;
+}
+
+.panel,
+.note,
+.result-card,
+.dictionary-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.panel,
+.note {
+  padding: 22px;
+}
+
+.section-heading h2 {
+  margin: 0 0 18px;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  line-height: 1.25;
+}
+
+textarea,
+input,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+}
+
+textarea {
+  min-height: 260px;
+  padding: 16px;
+  resize: vertical;
+}
+
+input,
+select {
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.button-row,
+.hero__actions,
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.button,
+.copy-button,
+.filter-button {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.button--primary {
+  background: var(--navy);
+  color: #fff;
+}
+
+.button--secondary,
+.button--ghost,
+.filter-button {
+  background: #fff;
+  color: var(--navy);
+  border-color: var(--line);
+}
+
+.button--ghost {
+  color: #fff;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.button:hover,
+.copy-button:hover,
+.filter-button:hover {
+  border-color: var(--red);
+}
+
+.empty-state {
+  padding: 22px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: #fbfcfe;
+}
+
+.result-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.result-card {
+  padding: 16px;
+}
+
+.result-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.result-card h3,
+.note h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.copy-button {
+  min-width: 72px;
+  min-height: 34px;
+  background: #fff7dd;
+  color: var(--navy);
+}
+
+.dictionary-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.dictionary-card {
+  padding: 16px;
+}
+
+.dictionary-card__category,
+.term-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff3c4;
+  color: var(--navy);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.dictionary-card__terms {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font-weight: 900;
+}
+
+.dictionary-card__from {
+  color: var(--muted);
+}
+
+.dictionary-card__arrow {
+  color: var(--red);
+}
+
+.utility-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.note {
+  background: #eef2f6;
+  box-shadow: none;
+}
+
+@media (min-width: 768px) {
+  .workspace,
+  .utility-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dictionary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .dictionary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
