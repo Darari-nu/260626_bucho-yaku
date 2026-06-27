@@ -294,6 +294,12 @@ mark {
   padding: 0 2px;
 }
 
+.translation-note {
+  color: var(--green);
+  font-size: 0.92em;
+  font-weight: 700;
+}
+
 .result-actions {
   align-items: center;
 }

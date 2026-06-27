@@ -84,7 +84,7 @@ function translateCurrentText() {
 function buildTranslation(inputText, dictionary) {
   const originalText = inputText.trim();
   const matches = findMatches(originalText, dictionary);
-  const translatedText = replaceTerms(originalText, matches);
+  const translatedText = buildAnnotatedText(originalText, matches);
 
   return {
     originalText,
@@ -103,10 +103,12 @@ function findMatches(inputText, dictionary) {
     .filter(({ term }) => makeTermRegExp(term).test(inputText));
 }
 
-function replaceTerms(inputText, matches) {
-  return matches.reduce((text, match) => {
-    return text.replace(makeTermRegExp(match.term, true), match.entry['訳']);
-  }, inputText);
+function buildAnnotatedText(inputText, matches) {
+  const fragments = buildAnnotatedFragments(inputText, matches);
+  return fragments.map((fragment) => {
+    if (fragment.type !== 'hit') return fragment.text;
+    return `${fragment.text}（${fragment.translation}）`;
+  }).join('');
 }
 
 function makeTermRegExp(term, global = false) {
@@ -134,7 +136,7 @@ function renderResult(result) {
 
   if (resultSection) resultSection.hidden = false;
   renderHighlightedText('#originalText', result.originalText, result.matches, 'source');
-  renderHighlightedText('#translatedText', result.translatedText, result.matches, 'translated');
+  renderAnnotatedText('#translatedText', result.originalText, result.matches);
 
   if (result.matches.length === 0) {
     setText('#toolMessage', '辞書にある横文字は見つからなかったわ。文章はそのまま表示しているわよ。');
@@ -155,6 +157,66 @@ function renderHighlightedText(selector, text, matches, mode) {
     : matches.map((match) => ({ term: match.entry['訳'], label: match.entry['訳'] }));
 
   appendHighlightedFragments(container, text, targets, mode);
+}
+
+function renderAnnotatedText(selector, text, matches) {
+  const container = document.querySelector(selector);
+  if (!container) return;
+
+  container.replaceChildren();
+  appendAnnotatedFragments(container, text, matches);
+}
+
+function appendAnnotatedFragments(container, text, matches) {
+  const fragments = buildAnnotatedFragments(text, matches);
+
+  fragments.forEach((fragment) => {
+    if (fragment.type !== 'hit') {
+      container.appendChild(document.createTextNode(fragment.text));
+      return;
+    }
+
+    const mark = document.createElement('mark');
+    mark.className = 'highlight-translated';
+    mark.textContent = fragment.text;
+
+    const note = document.createElement('span');
+    note.className = 'translation-note';
+    note.textContent = `（${fragment.translation}）`;
+
+    container.append(mark, note);
+  });
+}
+
+function buildAnnotatedFragments(text, matches) {
+  const sortedMatches = matches
+    .filter((match) => match.term)
+    .sort((a, b) => b.term.length - a.term.length);
+
+  const fragments = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    const hit = findNextMatch(text, sortedMatches, cursor);
+    if (!hit) {
+      fragments.push({ type: 'text', text: text.slice(cursor) });
+      break;
+    }
+
+    if (hit.index > cursor) {
+      fragments.push({ type: 'text', text: text.slice(cursor, hit.index) });
+    }
+
+    const matchedText = text.slice(hit.index, hit.index + hit.match.term.length);
+    fragments.push({
+      type: 'hit',
+      text: matchedText,
+      translation: hit.match.entry['訳']
+    });
+    cursor = hit.index + hit.match.term.length;
+  }
+
+  return fragments;
 }
 
 function appendHighlightedFragments(container, text, targets, mode) {
@@ -198,6 +260,22 @@ function findNextTarget(text, targets, startIndex) {
   return nextHit;
 }
 
+function findNextMatch(text, matches, startIndex) {
+  let nextHit = null;
+  const lowerText = text.toLowerCase();
+
+  matches.forEach((match) => {
+    const lowerTerm = match.term.toLowerCase();
+    const index = lowerText.indexOf(lowerTerm, startIndex);
+    if (index === -1) return;
+    if (!nextHit || index < nextHit.index || (index === nextHit.index && match.term.length > nextHit.match.term.length)) {
+      nextHit = { index, match };
+    }
+  });
+
+  return nextHit;
+}
+
 async function copyTranslatedText() {
   const text = state.lastResult?.translatedText || '';
   if (!text.trim()) {
@@ -220,15 +298,20 @@ function renderSummary() {
   const matches = state.lastResult?.matches || [];
   if (!state.lastResult || state.lastResult.isEmpty) {
     summaryText.hidden = false;
-    summaryText.textContent = 'つまり：先に文章を貼るところからお願いね。';
+    summaryText.replaceChildren(document.createTextNode('つまり：先に文章を貼るところからお願いね。'));
     return;
   }
 
-  const terms = matches.slice(0, 3).map((match) => match.term);
   summaryText.hidden = false;
-  summaryText.textContent = terms.length
-    ? `つまり：${terms.join('、')}を、新しい言葉を使わずちゃんと伝わる文章にしました。`
-    : 'つまり：新しい言葉を増やさず、そのまま読める文章でした。';
+  summaryText.replaceChildren();
+
+  if (matches.length === 0) {
+    summaryText.textContent = 'つまり：新しい言葉を増やさず、そのまま読める文章でした。';
+    return;
+  }
+
+  summaryText.appendChild(document.createTextNode('つまり：'));
+  appendAnnotatedFragments(summaryText, state.lastResult.originalText, matches);
 }
 
 function clearTool() {
