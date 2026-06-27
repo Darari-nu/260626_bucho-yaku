@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="横文字をわかりやすくする">
+  <rect width="64" height="64" rx="14" fill="#f7f8f4"/>
+  <rect x="5" y="5" width="54" height="54" rx="10" fill="none" stroke="#d5dbdc" stroke-width="4"/>
+  <path d="M14 39h36" stroke="#d7332f" stroke-width="5" stroke-linecap="round" transform="rotate(-4 32 39)"/>
+  <text x="32" y="30" text-anchor="middle" font-family="Hiragino Sans, Yu Gothic, sans-serif" font-size="18" font-weight="900" fill="#1f2326">横</text>
+  <text x="32" y="50" text-anchor="middle" font-family="Hiragino Sans, Yu Gothic, sans-serif" font-size="14" font-weight="900" fill="#0b8790">日</text>
+</svg>
