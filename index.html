@@ -25,33 +25,17 @@
         <div class="input-panel paper-panel">
           <label class="textarea-label" for="sourceText">文章を貼る</label>
           <textarea id="sourceText" rows="9" placeholder="例：このプロジェクトはアジャイルでスケールします"></textarea>
-          <div class="primary-actions">
-            <button id="translateButton" class="button button--primary" type="button">わかる日本語にする</button>
-          </div>
           <p id="toolMessage" class="tool-message" role="status" aria-live="polite"></p>
         </div>
 
-        <div id="resultSection" class="result-section" hidden>
-          <div class="result-grid" aria-live="polite">
-            <article class="result-panel paper-panel">
-              <h2>元の文章</h2>
-              <div id="originalText" class="text-output text-output--original"></div>
-            </article>
-            <article class="result-panel paper-panel">
-              <h2>変換後の文章</h2>
-              <div id="translatedText" class="text-output text-output--translated"></div>
-            </article>
-          </div>
-
-          <div class="result-actions">
+        <section id="resultSection" class="result-section paper-panel" aria-labelledby="resultTitle">
+          <div class="result-head">
+            <h2 id="resultTitle">変換後の文章</h2>
             <button id="copyButton" class="button button--secondary" type="button">コピー</button>
-            <button id="retryButton" class="button button--secondary" type="button">もう一度変換</button>
-            <button id="clearButton" class="button button--ghost" type="button">クリア</button>
-            <button id="summaryButton" class="button button--small" type="button">部長っぽく要約</button>
           </div>
+          <div id="translatedText" class="text-output text-output--translated" aria-live="polite"></div>
           <p id="copyStatus" class="copy-status" role="status" aria-live="polite"></p>
-          <p id="summaryText" class="summary-text" hidden></p>
-        </div>
+        </section>
       </section>
 
       <section class="dictionary-strip paper-panel" aria-label="辞書">

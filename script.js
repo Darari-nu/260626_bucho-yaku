@@ -9,7 +9,8 @@ const state = {
   dictionary: {},
   activeCategory: 'すべて',
   searchQuery: '',
-  lastResult: null
+  lastResult: null,
+  translateTimer: null
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -33,21 +34,15 @@ async function loadDictionary(url = './data/dictionary.json') {
 }
 
 function bindEvents() {
-  const translateButton = document.querySelector('#translateButton');
-  const retryButton = document.querySelector('#retryButton');
-  const clearButton = document.querySelector('#clearButton');
+  const sourceText = document.querySelector('#sourceText');
   const copyButton = document.querySelector('#copyButton');
-  const summaryButton = document.querySelector('#summaryButton');
   const openDictionaryButton = document.querySelector('#openDictionaryButton');
   const closeDictionaryButton = document.querySelector('#closeDictionaryButton');
   const dictionaryDialog = document.querySelector('#dictionaryDialog');
   const dictionarySearch = document.querySelector('#dictionarySearch');
 
-  translateButton?.addEventListener('click', translateCurrentText);
-  retryButton?.addEventListener('click', translateCurrentText);
-  clearButton?.addEventListener('click', clearTool);
+  sourceText?.addEventListener('input', queueTranslation);
   copyButton?.addEventListener('click', copyTranslatedText);
-  summaryButton?.addEventListener('click', renderSummary);
 
   openDictionaryButton?.addEventListener('click', () => {
     if (typeof dictionaryDialog?.showModal === 'function') {
@@ -72,6 +67,13 @@ function bindEvents() {
     state.searchQuery = event.target.value.trim().toLowerCase();
     renderDictionary();
   });
+
+  translateCurrentText();
+}
+
+function queueTranslation() {
+  window.clearTimeout(state.translateTimer);
+  state.translateTimer = window.setTimeout(translateCurrentText, 300);
 }
 
 function translateCurrentText() {
@@ -121,21 +123,14 @@ function escapeRegExp(value) {
 }
 
 function renderResult(result) {
-  const resultSection = document.querySelector('#resultSection');
-  const summaryText = document.querySelector('#summaryText');
-
   setText('#copyStatus', '');
   setText('#toolMessage', '');
-  if (summaryText) summaryText.hidden = true;
 
   if (result.isEmpty) {
-    if (resultSection) resultSection.hidden = true;
-    setText('#toolMessage', '文章を貼ってから押してちょうだい。空っぽだとほどけないわ。');
+    renderAnnotatedText('#translatedText', '', []);
     return;
   }
 
-  if (resultSection) resultSection.hidden = false;
-  renderHighlightedText('#originalText', result.originalText, result.matches, 'source');
   renderAnnotatedText('#translatedText', result.originalText, result.matches);
 
   if (result.matches.length === 0) {
@@ -143,20 +138,6 @@ function renderResult(result) {
   } else {
     setText('#toolMessage', `${result.matches.length}語をわかる日本語にしたわ。`);
   }
-}
-
-function renderHighlightedText(selector, text, matches, mode) {
-  const container = document.querySelector(selector);
-  if (!container) return;
-
-  container.replaceChildren();
-  if (!text) return;
-
-  const targets = mode === 'source'
-    ? matches.map((match) => ({ term: match.term, label: match.term }))
-    : matches.map((match) => ({ term: match.entry['訳'], label: match.entry['訳'] }));
-
-  appendHighlightedFragments(container, text, targets, mode);
 }
 
 function renderAnnotatedText(selector, text, matches) {
@@ -219,47 +200,6 @@ function buildAnnotatedFragments(text, matches) {
   return fragments;
 }
 
-function appendHighlightedFragments(container, text, targets, mode) {
-  const sortedTargets = targets
-    .filter((target) => target.term)
-    .sort((a, b) => b.term.length - a.term.length);
-
-  let cursor = 0;
-  while (cursor < text.length) {
-    const hit = findNextTarget(text, sortedTargets, cursor);
-    if (!hit) {
-      container.appendChild(document.createTextNode(text.slice(cursor)));
-      break;
-    }
-
-    if (hit.index > cursor) {
-      container.appendChild(document.createTextNode(text.slice(cursor, hit.index)));
-    }
-
-    const mark = document.createElement('mark');
-    mark.className = mode === 'source' ? 'highlight-source' : 'highlight-translated';
-    mark.textContent = text.slice(hit.index, hit.index + hit.term.length);
-    container.appendChild(mark);
-    cursor = hit.index + hit.term.length;
-  }
-}
-
-function findNextTarget(text, targets, startIndex) {
-  let nextHit = null;
-
-  targets.forEach((target) => {
-    const lowerText = text.toLowerCase();
-    const lowerTerm = target.term.toLowerCase();
-    const index = lowerText.indexOf(lowerTerm, startIndex);
-    if (index === -1) return;
-    if (!nextHit || index < nextHit.index || (index === nextHit.index && target.term.length > nextHit.term.length)) {
-      nextHit = { index, term: text.slice(index, index + target.term.length) };
-    }
-  });
-
-  return nextHit;
-}
-
 function findNextMatch(text, matches, startIndex) {
   let nextHit = null;
   const lowerText = text.toLowerCase();
@@ -289,45 +229,6 @@ async function copyTranslatedText() {
   } catch (error) {
     setText('#copyStatus', 'コピーに失敗したわ。ブラウザの権限を確認してちょうだい。');
   }
-}
-
-function renderSummary() {
-  const summaryText = document.querySelector('#summaryText');
-  if (!summaryText) return;
-
-  const matches = state.lastResult?.matches || [];
-  if (!state.lastResult || state.lastResult.isEmpty) {
-    summaryText.hidden = false;
-    summaryText.replaceChildren(document.createTextNode('つまり：先に文章を貼るところからお願いね。'));
-    return;
-  }
-
-  summaryText.hidden = false;
-  summaryText.replaceChildren();
-
-  if (matches.length === 0) {
-    summaryText.textContent = 'つまり：新しい言葉を増やさず、そのまま読める文章でした。';
-    return;
-  }
-
-  summaryText.appendChild(document.createTextNode('つまり：'));
-  appendAnnotatedFragments(summaryText, state.lastResult.originalText, matches);
-}
-
-function clearTool() {
-  const sourceText = document.querySelector('#sourceText');
-  const resultSection = document.querySelector('#resultSection');
-  const summaryText = document.querySelector('#summaryText');
-
-  if (sourceText) {
-    sourceText.value = '';
-    sourceText.focus();
-  }
-  if (resultSection) resultSection.hidden = true;
-  if (summaryText) summaryText.hidden = true;
-  state.lastResult = null;
-  setText('#toolMessage', '');
-  setText('#copyStatus', '');
 }
 
 function renderDictionaryCount() {
