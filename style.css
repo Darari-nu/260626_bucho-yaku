@@ -414,6 +414,18 @@ mark {
   font-weight: 800;
 }
 
+@media (min-width: 860px) {
+  .tool {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+    align-items: stretch;
+  }
+
+  .input-panel,
+  .result-section {
+    min-height: 100%;
+  }
+}
+
 @media (max-width: 720px) {
   .app {
     width: min(100% - 24px, 1080px);
