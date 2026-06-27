@@ -262,7 +262,14 @@ button:focus-visible {
 }
 
 .sample-result-body {
-  color: var(--text);
+  color: #8f8578;
+}
+
+.sample-result-body .highlight-translated,
+.sample-result-body .translation-note {
+  color: #8f8578;
+  background: transparent;
+  font-weight: 600;
 }
 
 mark {
