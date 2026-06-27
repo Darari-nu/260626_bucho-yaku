@@ -15,36 +15,131 @@
     </noscript>
 
     <main class="app">
-      <section class="hero" aria-labelledby="pageTitle">
-        <p class="eyebrow">darariの横文字ほどき</p>
-        <h1 id="pageTitle">横文字をわかりやすくする</h1>
-        <p class="lead">横文字を、わかる日本語に。</p>
-      </section>
-
-      <section class="tool" aria-label="横文字置換ツール">
-        <div class="input-panel paper-panel">
-          <label class="textarea-label" for="sourceText">文章を貼る</label>
-          <textarea id="sourceText" rows="9" placeholder="例：
-このオポチュニティをスケールさせるには、まずペインを深掘りし、バリュープロポジションの解像度を上げる必要があります。ボールの所在を明確にしたうえで、各タスクをブレイクダウンし、リソースとキャパを踏まえてアサインを見直します。データドリブンな意思決定を実現するために、ワークフローを可視化し、ボトルネックを特定して自動化を進めます。"></textarea>
-          <p id="toolMessage" class="tool-message" role="status" aria-live="polite"></p>
+      <section class="whiteboard" aria-labelledby="pageTitle">
+        <div class="board-rail board-rail--top" aria-hidden="true"></div>
+        <div class="board-rail board-rail--bottom" aria-hidden="true">
+          <span class="marker marker--red"></span>
+          <span class="marker marker--black"></span>
+          <span class="marker marker--teal"></span>
+          <span class="eraser"></span>
         </div>
 
-        <section id="resultSection" class="result-section paper-panel" aria-labelledby="resultTitle">
-          <div class="result-head">
-            <h2 id="resultTitle">変換後の文章</h2>
-            <button id="copyButton" class="button button--secondary" type="button">コピー</button>
+        <header class="hero">
+          <div class="hand-note hand-note--left" aria-hidden="true">
+            <span>その会議、</span>
+            <span>たぶん</span>
+            <strong>“伝わってない”</strong>
+            <span>が原因です。</span>
           </div>
-          <div id="translatedText" class="text-output text-output--translated" aria-live="polite">
-            <p class="sample-result-label">変換後の例</p>
-            <div class="sample-result-body">この<mark class="highlight-translated">機会</mark><span class="translation-note">（オポチュニティ）</span>を<mark class="highlight-translated">規模拡大</mark><span class="translation-note">（スケール）</span>させるには、まず<mark class="highlight-translated">困りごと</mark><span class="translation-note">（ペイン）</span>を深掘りし、<mark class="highlight-translated">相手に届ける価値</mark><span class="translation-note">（バリュープロポジション）</span>の<mark class="highlight-translated">理解の細かさ</mark><span class="translation-note">（解像度）</span>を上げる必要があります。<mark class="highlight-translated">次に対応すべき担当</mark><span class="translation-note">（ボール）</span>の所在を明確にしたうえで、各タスクを<mark class="highlight-translated">細かく分けること</mark><span class="translation-note">（ブレイクダウン）</span>し、<mark class="highlight-translated">人手や時間</mark><span class="translation-note">（リソース）</span>と<mark class="highlight-translated">対応できる余裕</mark><span class="translation-note">（キャパ）</span>を踏まえて<mark class="highlight-translated">担当を決めること</mark><span class="translation-note">（アサイン）</span>を見直します。<mark class="highlight-translated">数字を見て決めるやり方</mark><span class="translation-note">（データドリブン）</span>な意思決定を実現するために、<mark class="highlight-translated">仕事の流れ</mark><span class="translation-note">（ワークフロー）</span>を<mark class="highlight-translated">見て分かる形にすること</mark><span class="translation-note">（可視化）</span>し、<mark class="highlight-translated">詰まっているところ</mark><span class="translation-note">（ボトルネック）</span>を特定して<mark class="highlight-translated">人の手作業を減らすこと</mark><span class="translation-note">（自動化）</span>を進めます。</div>
-          </div>
-          <p id="copyStatus" class="copy-status" role="status" aria-live="polite"></p>
-        </section>
-      </section>
 
-      <section class="dictionary-strip paper-panel" aria-label="辞書">
-        <p id="dictionaryCount">登録語数：0語</p>
-        <button id="openDictionaryButton" class="button button--ghost" type="button">辞書を見る</button>
+          <div class="hero-title">
+            <p class="eyebrow">darariの横文字ほどき</p>
+            <h1 id="pageTitle">横文字をわかりやすくする</h1>
+            <p class="lead">横文字を、わかる日本語に。</p>
+          </div>
+
+          <aside class="goal-bubble" aria-label="今日のゴール">
+            <p>今日のゴール！</p>
+            <ul>
+              <li>言葉をそろえる</li>
+              <li>やることを決める</li>
+            </ul>
+          </aside>
+        </header>
+
+        <section class="board-grid" aria-label="横文字置換ツール">
+          <aside class="jargon-wall" aria-label="よく出る横文字">
+            <h2>よく出る横文字 <span>（モヤモヤのもと）</span></h2>
+            <div class="sticky-grid" aria-hidden="true">
+              <span class="sticky-note">オポチュニティ</span>
+              <span class="sticky-note">スケール</span>
+              <span class="sticky-note">ペイン</span>
+              <span class="sticky-note">シナジー</span>
+              <span class="sticky-note">アライン</span>
+              <span class="sticky-note">リソース</span>
+              <span class="sticky-note">KPI</span>
+              <span class="sticky-note">エンゲージメント</span>
+            </div>
+            <p class="hand-caption">なんとなく使ってない？<br>意味、そろってる？</p>
+          </aside>
+
+          <section class="tool" aria-label="横文字変換">
+            <div class="input-panel board-panel">
+              <div class="panel-head">
+                <label class="textarea-label" for="sourceText">文章を貼る</label>
+                <span class="info-dot" aria-hidden="true">i</span>
+              </div>
+              <textarea id="sourceText" rows="9" placeholder="例：
+このオポチュニティをスケールさせるには、まずペインを深掘りし、バリュープロポジションの解像度を上げる必要があります。ボールの所在を明確にしたうえで、各タスクをブレイクダウンし、リソースとキャパを踏まえてアサインを見直します。データドリブンな意思決定を実現するために、ワークフローを可視化し、ボトルネックを特定して自動化を進めます。"></textarea>
+              <div class="input-footer">
+                <button id="translateButton" class="button button--primary" type="button">
+                  <span aria-hidden="true">✦</span>
+                  わかりやすく変換する
+                </button>
+                <p id="toolMessage" class="tool-message" role="status" aria-live="polite"></p>
+              </div>
+            </div>
+
+            <div class="arrow-bridge" aria-hidden="true">→</div>
+
+            <section id="resultSection" class="result-section board-panel" aria-labelledby="resultTitle">
+              <div class="result-head">
+                <div class="panel-head">
+                  <h2 id="resultTitle">変換後の文章</h2>
+                  <span class="info-dot" aria-hidden="true">i</span>
+                </div>
+                <button id="copyButton" class="button button--secondary" type="button">コピー</button>
+              </div>
+              <div id="translatedText" class="text-output text-output--translated" aria-live="polite">
+                <p class="sample-result-label">変換後の例</p>
+                <div class="sample-result-body">この<mark class="highlight-translated">機会</mark><span class="translation-note">（オポチュニティ）</span>を<mark class="highlight-translated">規模拡大</mark><span class="translation-note">（スケール）</span>させるには、まず<mark class="highlight-translated">困りごと</mark><span class="translation-note">（ペイン）</span>を深掘りし、<mark class="highlight-translated">相手に届ける価値</mark><span class="translation-note">（バリュープロポジション）</span>の<mark class="highlight-translated">理解の細かさ</mark><span class="translation-note">（解像度）</span>を上げる必要があります。<mark class="highlight-translated">次に対応すべき担当</mark><span class="translation-note">（ボール）</span>の所在を明確にしたうえで、各タスクを<mark class="highlight-translated">細かく分けること</mark><span class="translation-note">（ブレイクダウン）</span>し、<mark class="highlight-translated">人手や時間</mark><span class="translation-note">（リソース）</span>と<mark class="highlight-translated">対応できる余裕</mark><span class="translation-note">（キャパ）</span>を踏まえて<mark class="highlight-translated">担当を決めること</mark><span class="translation-note">（アサイン）</span>を見直します。<mark class="highlight-translated">数字を見て決めるやり方</mark><span class="translation-note">（データドリブン）</span>な意思決定を実現するために、<mark class="highlight-translated">仕事の流れ</mark><span class="translation-note">（ワークフロー）</span>を<mark class="highlight-translated">見て分かる形にすること</mark><span class="translation-note">（可視化）</span>し、<mark class="highlight-translated">詰まっているところ</mark><span class="translation-note">（ボトルネック）</span>を特定して<mark class="highlight-translated">人の手作業を減らすこと</mark><span class="translation-note">（自動化）</span>を進めます。</div>
+              </div>
+              <p id="copyStatus" class="copy-status" role="status" aria-live="polite"></p>
+            </section>
+          </section>
+
+          <aside class="action-wall" aria-label="アクションに変換">
+            <h2>アクションに変換 <span>（やることが見える）</span></h2>
+            <div class="action-card">
+              <span class="action-icon" aria-hidden="true">⌕</span>
+              <p>困りごとを深掘りする</p>
+            </div>
+            <div class="action-card">
+              <span class="action-icon" aria-hidden="true">◎</span>
+              <p>届ける価値をはっきりさせる</p>
+            </div>
+            <div class="action-card">
+              <span class="action-icon" aria-hidden="true">☷</span>
+              <p>やることを細かく分けて、担当を決める</p>
+            </div>
+            <div class="action-card">
+              <span class="action-icon" aria-hidden="true">↗</span>
+              <p>仕事の流れを見える化する</p>
+            </div>
+            <div class="action-card">
+              <span class="action-icon" aria-hidden="true">⚙</span>
+              <p>止まっているところをなくす</p>
+            </div>
+            <p class="hand-caption hand-caption--right">これで<br>会議が、動き出す！</p>
+          </aside>
+        </section>
+
+        <section class="dictionary-strip" aria-label="用語ミニ辞典">
+          <div class="dictionary-strip__head">
+            <h2>用語をわかりやすく <span>（ミニ辞書）</span></h2>
+            <button id="openDictionaryButton" class="button button--ghost" type="button">辞書を編集</button>
+          </div>
+          <div class="mini-dictionary">
+            <article class="mini-term"><span>オポチュニティ</span><strong>→ 機会</strong></article>
+            <article class="mini-term"><span>スケール</span><strong>→ 大きく広げる</strong></article>
+            <article class="mini-term"><span>ペイン</span><strong>→ 困りごと</strong></article>
+            <article class="mini-term"><span>リソース</span><strong>→ 使える時間や人手</strong></article>
+            <article class="mini-term"><span>キャパ</span><strong>→ 対応できる余裕</strong></article>
+          </div>
+          <p id="dictionaryCount" class="dictionary-count">登録語数：0語</p>
+        </section>
+
+        <p class="privacy-note">※ 入力した文章は外部送信しません。ブラウザの中だけで変換します。</p>
       </section>
     </main>
 

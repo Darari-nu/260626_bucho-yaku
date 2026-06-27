@@ -37,6 +37,7 @@ async function loadDictionary(url = './data/dictionary.json') {
 
 function bindEvents() {
   const sourceText = document.querySelector('#sourceText');
+  const translateButton = document.querySelector('#translateButton');
   const copyButton = document.querySelector('#copyButton');
   const openDictionaryButton = document.querySelector('#openDictionaryButton');
   const closeDictionaryButton = document.querySelector('#closeDictionaryButton');
@@ -44,6 +45,7 @@ function bindEvents() {
   const dictionarySearch = document.querySelector('#dictionarySearch');
 
   sourceText?.addEventListener('input', queueTranslation);
+  translateButton?.addEventListener('click', translateCurrentText);
   copyButton?.addEventListener('click', copyTranslatedText);
 
   openDictionaryButton?.addEventListener('click', () => {
