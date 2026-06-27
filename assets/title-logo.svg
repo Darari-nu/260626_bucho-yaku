@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 150" role="img" aria-labelledby="title">
+  <title id="title">横文字をわかりやすくする</title>
+  <defs>
+    <filter id="markerInk" x="-3%" y="-15%" width="106%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="8" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <text x="490" y="92"
+        text-anchor="middle"
+        font-family="Hiragino Sans, Yu Gothic, Noto Sans CJK JP, system-ui, sans-serif"
+        font-size="78"
+        font-weight="900"
+        letter-spacing="-2"
+        fill="#171b1d"
+        filter="url(#markerInk)">横文字をわかりやすくする</text>
+  <path d="M70 126 C230 116, 420 122, 600 114 S835 106, 916 112"
+        fill="none"
+        stroke="#d7332f"
+        stroke-width="9"
+        stroke-linecap="round"
+        filter="url(#markerInk)"/>
+</svg>
