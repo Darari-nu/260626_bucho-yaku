@@ -7,7 +7,7 @@
     <meta name="description" content="文章に含まれる横文字を辞書で見つけて、わかる日本語に置き換える静的Webツールです。">
     <meta property="og:title" content="横文字をわかりやすくする">
     <meta property="og:description" content="横文字を、わかる日本語に。">
-    <link rel="stylesheet" href="./style.css?v=photo-board-ui">
+    <link rel="stylesheet" href="./style.css?v=office-bg-ui">
   </head>
   <body>
     <noscript>
@@ -25,16 +25,25 @@
         </div>
 
         <header class="hero">
-          <img class="hand-note hand-note--left" src="./assets/hand-note-cause.svg" alt="その会議、たぶん伝わってないが原因です。">
+          <div class="hand-note hand-note--left" aria-hidden="true">
+            <span>その会議、</span>
+            <span>たぶん</span>
+            <strong>“伝わってない”</strong>
+            <span>が原因です。</span>
+          </div>
 
           <div class="hero-title">
             <p class="eyebrow">darariの横文字ほどき</p>
-            <h1 id="pageTitle"><img class="title-logo" src="./assets/title-logo.svg" alt="横文字をわかりやすくする"></h1>
+            <h1 id="pageTitle">横文字をわかりやすくする</h1>
             <p class="lead">横文字を、わかる日本語に。</p>
           </div>
 
           <aside class="goal-bubble" aria-label="今日のゴール">
-            <img src="./assets/goal-note.svg" alt="今日のゴール！言葉をそろえる。やることを決める。">
+            <p>今日のゴール！</p>
+            <ul>
+              <li>言葉をそろえる</li>
+              <li>やることを決める</li>
+            </ul>
           </aside>
         </header>
 
@@ -57,10 +66,7 @@
           <section class="tool" aria-label="横文字変換">
             <div class="input-panel board-panel">
               <div class="panel-head">
-                <div class="panel-title-group">
-                  <label class="textarea-label" for="sourceText"><span class="step-badge">1</span>文章を貼る</label>
-                  <p class="panel-copy">横文字だらけの会議メモを、そのまま貼る</p>
-                </div>
+                <label class="textarea-label" for="sourceText">文章を貼る</label>
                 <span class="info-dot" aria-hidden="true">i</span>
               </div>
               <textarea id="sourceText" rows="9" placeholder="例：
@@ -79,10 +85,7 @@
             <section id="resultSection" class="result-section board-panel" aria-labelledby="resultTitle">
               <div class="result-head">
                 <div class="panel-head">
-                  <div class="panel-title-group">
-                    <h2 id="resultTitle"><span class="step-badge step-badge--teal">2</span>変換後の文章</h2>
-                    <p class="panel-copy">会議で動ける日本語にして返します</p>
-                  </div>
+                  <h2 id="resultTitle">変換後の文章</h2>
                   <span class="info-dot" aria-hidden="true">i</span>
                 </div>
                 <button id="copyButton" class="button button--secondary" type="button">コピー</button>
@@ -117,7 +120,7 @@
               <span class="action-icon" aria-hidden="true">⚙</span>
               <p>止まっているところをなくす</p>
             </div>
-            <img class="hand-caption hand-caption--right" src="./assets/move-note.svg" alt="これで会議が、動き出す！">
+            <p class="hand-caption hand-caption--right">これで<br>会議が、動き出す！</p>
           </aside>
         </section>
 
@@ -158,6 +161,6 @@
       <div id="dictionaryGrid" class="dictionary-grid"></div>
     </dialog>
 
-    <script src="./script.js?v=photo-board-ui" defer></script>
+    <script src="./script.js?v=office-bg-ui" defer></script>
   </body>
 </html>
