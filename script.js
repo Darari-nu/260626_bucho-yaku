@@ -5,6 +5,8 @@ const CATEGORIES = [
   'ふわっとした言葉'
 ];
 
+const SAMPLE_TEXT = 'このオポチュニティをスケールさせるには、まずペインを深掘りし、バリュープロポジションの解像度を上げる必要があります。ボールの所在を明確にしたうえで、各タスクをブレイクダウンし、リソースとキャパを踏まえてアサインを見直します。データドリブンな意思決定を実現するために、ワークフローを可視化し、ボトルネックを特定して自動化を進めます。';
+
 const state = {
   dictionary: {},
   activeCategory: 'すべて',
@@ -109,7 +111,7 @@ function buildAnnotatedText(inputText, matches) {
   const fragments = buildAnnotatedFragments(inputText, matches);
   return fragments.map((fragment) => {
     if (fragment.type !== 'hit') return fragment.text;
-    return `${fragment.text}（${fragment.translation}）`;
+    return `${fragment.translation}（${fragment.text}）`;
   }).join('');
 }
 
@@ -127,7 +129,7 @@ function renderResult(result) {
   setText('#toolMessage', '');
 
   if (result.isEmpty) {
-    renderAnnotatedText('#translatedText', '', []);
+    renderSampleResult();
     return;
   }
 
@@ -148,6 +150,22 @@ function renderAnnotatedText(selector, text, matches) {
   appendAnnotatedFragments(container, text, matches);
 }
 
+function renderSampleResult() {
+  const container = document.querySelector('#translatedText');
+  if (!container) return;
+
+  const sampleMatches = findMatches(SAMPLE_TEXT, state.dictionary);
+  const label = document.createElement('p');
+  label.className = 'sample-result-label';
+  label.textContent = '変換後の例';
+
+  const body = document.createElement('div');
+  body.className = 'sample-result-body';
+  appendAnnotatedFragments(body, SAMPLE_TEXT, sampleMatches);
+
+  container.replaceChildren(label, body);
+}
+
 function appendAnnotatedFragments(container, text, matches) {
   const fragments = buildAnnotatedFragments(text, matches);
 
@@ -159,11 +177,11 @@ function appendAnnotatedFragments(container, text, matches) {
 
     const mark = document.createElement('mark');
     mark.className = 'highlight-translated';
-    mark.textContent = fragment.text;
+    mark.textContent = fragment.translation;
 
     const note = document.createElement('span');
     note.className = 'translation-note';
-    note.textContent = `（${fragment.translation}）`;
+    note.textContent = `（${fragment.text}）`;
 
     container.append(mark, note);
   });

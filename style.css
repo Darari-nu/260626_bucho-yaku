@@ -254,23 +254,34 @@ button:focus-visible {
   content: "";
 }
 
+.sample-result-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.sample-result-body {
+  color: var(--text);
+}
+
 mark {
   background: transparent;
   color: inherit;
 }
 
 .highlight-translated {
-  color: var(--blue);
+  color: var(--red-deep);
   font-weight: 900;
-  background: rgba(232, 191, 104, 0.24);
+  background: rgba(232, 191, 104, 0.38);
   border-radius: 3px;
-  padding: 0 2px;
+  padding: 0 3px;
 }
 
 .translation-note {
-  color: var(--green);
-  font-size: 0.92em;
-  font-weight: 700;
+  color: #8d7a65;
+  font-size: 0.9em;
+  font-weight: 600;
 }
 
 .dictionary-strip {
